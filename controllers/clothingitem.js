@@ -10,8 +10,11 @@ const createItem = (req, res) => {
       res.send({ data: item });
     })
     .catch((e) => {
-      res.status(500).send({ message: "Error from creating item", e });
-    });
+  if (e.name === "ValidationError") {
+    return res.status(400).send({ message: e.message });
+  }
+  return res.status(500).send({ message: "Error from creating item" });
+});
 };
 
 const getItems = (req, res) => {
@@ -38,12 +41,19 @@ const updateItem = (req, res) => {
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
+
   clothingItem
     .findByIdAndDelete(itemId)
-    .orFail()
-    .then(() => res.status(204).send({}))
+    .orFail(() => new Error("NotFound"))
+    .then((item) => res.status(200).send(item))
     .catch((e) => {
-      res.status(500).send({ message: "Error from deleteing item", e });
+      if (e.name === "CastError") {
+        return res.status(400).send({ message: "Invalid item id" });
+      }
+      if (e.message === "NotFound") {
+        return res.status(404).send({ message: "Item not found" });
+      }
+      return res.status(500).send({ message: "Error from deleteing item" });
     });
 };
 
@@ -60,7 +70,12 @@ const likeItem = (req, res) => {
     ? res.send(item)
     : res.status(404).send({ message: "Item not found" })
 ))
-  .catch((e) => res.status(500).send({ message: "Error liking item", e }));
+  .catch((e) => {
+  if (e.name === "CastError") {
+    return res.status(400).send({ message: "Invalid item id" });
+  }
+  return res.status(500).send({ message: "Error liking item" });
+});
 };
 
 const dislikeItem = (req, res) => {
@@ -76,7 +91,12 @@ const dislikeItem = (req, res) => {
     ? res.send(item)
     : res.status(404).send({ message: "Item not found" })
 ))
-  .catch((e) => res.status(500).send({ message: "Error disliking item", e }));
+  .catch((e) => {
+  if (e.name === "CastError") {
+    return res.status(400).send({ message: "Invalid item id" });
+  }
+  return res.status(500).send({ message: "Error disliking item" });
+});
 };
 
 
