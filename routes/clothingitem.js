@@ -1,10 +1,8 @@
 const router = require('express').Router();
 
-
 const { createItem, getItems, updateItem, deleteItem, likeItem, dislikeItem } = require('../controllers/clothingitem');
 
-
-//CRUD
+// crud routes
 
 router.post("/", createItem);
 router.get("/", getItems);

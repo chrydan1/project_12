@@ -1,4 +1,3 @@
-console.log("Hello, ESLint!");
 
 module.exports = {
   env: {
